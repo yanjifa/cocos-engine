@@ -790,9 +790,15 @@ float SkeletonJson::toColor(const char *value, size_t index) {
 void SkeletonJson::readCurve(Json *frame, CurveTimeline *timeline, size_t frameIndex) {
     Json *curve = Json::getItem(frame, "curve");
     if (!curve) return;
-    if (curve->_type == Json::JSON_STRING && strcmp(curve->_valueString, "stepped") == 0)
+    if (curve->_type == Json::JSON_STRING && strcmp(curve->_valueString, "stepped") == 0) {
         timeline->setStepped(frameIndex);
-    else {
+    } else if(curve->_type == Json::JSON_ARRAY) {
+        Json *child0 = curve->_child;
+        Json *child1 = child0->_next;
+        Json *child2 = child1->_next;
+        Json *child3 = child2->_next;
+        timeline->setCurve(frameIndex, child0->_valueFloat, child1->_valueFloat, child2->_valueFloat, child3->_valueFloat);
+    } else {
         float c1 = Json::getFloat(frame, "curve", 0);
         float c2 = Json::getFloat(frame, "c2", 0);
         float c3 = Json::getFloat(frame, "c3", 1);
